@@ -1,0 +1,3 @@
+aiohttp==3.6.2
+aiokafka==0.5.2
+gino==1.0.0

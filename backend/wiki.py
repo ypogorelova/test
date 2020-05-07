@@ -57,6 +57,12 @@ class Response:
 
 class KafkaClient(Client):
     async def on_message(self, msg, key):
+        """
+        Check if search words already in db or request wiki and than store into db. Send result back to kafka
+        :param msg: message received from consumer
+        :param key:
+        :return: None
+        """
         cached = await get_record(msg)
         if cached:
             rec = cached
@@ -64,13 +70,12 @@ class KafkaClient(Client):
             response = await get(msg)
             rec = response.search_results
             await insert_record(chars=msg, urls=response.search_results)
-
-        await self.send_message(topic=key.decode("ascii"), msg=rec)
+        await self.send_message(msg=rec, key=key)
 
 
 async def main(loop):
     await init_db()
-    kafka = KafkaClient(loop, 'indbound')
+    kafka = KafkaClient(loop=loop, topic_consumer='outbound', topic_producer='indbound')
     await kafka.start()
     try:
         await kafka.run_consumer()

@@ -1,9 +1,10 @@
+import asyncio
 import json
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 
 class Client:
-    def __init__(self, loop, topic_consumer):
+    def __init__(self, loop, topic_consumer, topic_producer):
         bootstrap_servers = 'kafka:9092'
         self.consumer = AIOKafkaConsumer(
             topic_consumer,
@@ -12,6 +13,7 @@ class Client:
         self.producer = AIOKafkaProducer(
             loop=loop, bootstrap_servers=bootstrap_servers
         )
+        self.topic_producer = topic_producer
         self.topic_consumer = topic_consumer
 
     async def start(self):
@@ -27,9 +29,9 @@ class Client:
         :return: None
         """
         async for msg in self.consumer:
-            await self.on_message(msg.value.decode(), msg.key)
+            asyncio.create_task(self.on_message(msg.value.decode(), msg.key.decode()))
 
-    async def send_message(self, topic, msg, key=None):
+    async def send_message(self, msg, key):
         """
         Runs producer and send message
         :param topic: producer topic
@@ -37,17 +39,4 @@ class Client:
         :param key: message key
         :return: None
         """
-        if key:
-            key = key.encode("ascii")
-        await self.producer.send(topic, json.dumps(msg).encode("ascii"), key)
-
-    async def send_and_wait(self, topic, msg):
-        """
-        Send message via producer and receive corresponding message from consumer
-        :param topic: producer topic
-        :param msg: message to be send by producer
-        :return: message from consumer
-        """
-        await self.send_message(topic=topic, msg=msg, key=self.topic_consumer)
-        async for mes in self.consumer:
-            return mes.value.decode()
+        await self.producer.send(self.topic_producer, json.dumps(msg).encode("ascii"), key.encode("ascii"))

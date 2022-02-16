@@ -1,4 +1,4 @@
-# Bym test 
+# Test 
 Develop service for searching articles from Wikipedia based on input string. Use Kafka and PostgreSQL 
 
 ## Built and Run With Docker

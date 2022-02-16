@@ -41,7 +41,7 @@ services:
     ports:
       - "$EXPOSE_PORT:$EXPOSE_PORT"
     build:
-      context: ./frontend
+      context: app
       dockerfile: Dockerfile
       args:
         EXPOSE_PORT: $EXPOSE_PORT
@@ -52,7 +52,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: executor
       dockerfile: Dockerfile
     links:
       - kafka

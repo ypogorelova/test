@@ -1,5 +1,5 @@
 # Bym test 
-Реализовать сервис для поиска статей на сайте wikipedia.
+Develop service for searching articles from Wikipedia based on input string. Use Kafka and PostgreSQL 
 
 ## Built and Run With Docker
 DOCKER_HOST_IP="local ip" EXPOSE_PORT=9999 docker-compose up --build
